@@ -9,7 +9,7 @@ const createUserToken = async(User, req, res)=>{
         name: User.name,
         id: User.id,
         tipo: User.tipo
-    }, process.env.CHAVETOKEN)
+    }, process.env.CHAVETOKEN, {expiresIn: '1d'})
 
     //retornamos o token
     res.status(200).json({token:token})

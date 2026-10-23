@@ -7,19 +7,22 @@ const conn = require('../db/conn.js')
 const User = conn.define('users',{
     name:{
         type: DataTypes.STRING,
-        required: true
+        allowNull: false
     },
     email:{
         type: DataTypes.STRING,
-        required: true
+        allowNull: false,
+        unique: true,
+        validate: {isEmail: true}
     },
     password:{
         type: DataTypes.STRING,
-        required: true
+        allowNull: false
     },
     tipo:{
         type: DataTypes.INTEGER,
-        required: true
+        allowNull: false,
+        validate: {isIn: [[1, 2, 3]]}
     },
 })
 

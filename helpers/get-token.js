@@ -1,7 +1,7 @@
 const getToken = (req) =>{
     const authHeader = req.headers.authorization
-    const token = authHeader.split(" ")[1]
-    return token
+    const [scheme, token] = authHeader.split(" ")
+    return scheme === 'Bearer' ? token : null
 }
 
 module.exports = getToken

@@ -12,7 +12,12 @@ const checkToken = (req, res, next)=>{
     }
 
     //recuperar o token
-    const token = getToken(req)
+    let token
+    try{
+        token = getToken(req)
+    }catch(error){
+        return res.status(401).json({message: 'Acesso negado'})
+    }
 
     //2-caso o token seja inexistente
     if(!token){
@@ -22,7 +27,7 @@ const checkToken = (req, res, next)=>{
     //3-verificar validade do token
     try{
         const verified = jwt.verify(token, process.env.CHAVETOKEN)
-        req.user = jwt.verified
+        req.user = verified
         next()
     }
     catch(error){

@@ -7,29 +7,31 @@ const conn = require('../db/conn.js')
 const Estabelecimento = conn.define('estabelecimentos',{
     name:{
         type: DataTypes.STRING,
-        required: true
+        allowNull: false
     },
     CNPJ:{
         type: DataTypes.STRING,
-        required: true
+        allowNull: false,
+        unique: true
     },
     descricao:{
         type: DataTypes.STRING,
-        required: true
+        allowNull: false
     },
     phone:{
-        type: DataTypes.INTEGER,
-        required: true
+        type: DataTypes.STRING,
+        allowNull: false
     },
     horario:{
         type: DataTypes.STRING,
-        required: true
+        allowNull: false
     },
     idusuario:{
         type: DataTypes.INTEGER
     },
     media:{
-        type: DataTypes.INTEGER
+        type: DataTypes.DECIMAL(3, 2),
+        allowNull: true
     }
 })
 

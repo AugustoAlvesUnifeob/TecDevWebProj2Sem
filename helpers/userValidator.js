@@ -1,13 +1,13 @@
 ///requerer as bibliotecas do validator
-const {body,validationResult} = require('express-validator')
+const {body, validationResult} = require('express-validator')
 
 //validações
 const registerValidationRules = ()=>{
     return [
-        body('name').notEmpty().withMessage('O nome é obrigatorio'),    
-        body('email').notEmpty().withMessage('O email é obrigatorio e deve ser válido'),
-        body('password').notEmpty().withMessage('A senha é obrigatoria'),
-        body('tipo').notEmpty().withMessage('O tipo é obrigatorio'),            
+        body('name').trim().notEmpty().withMessage('O nome é obrigatório'),
+        body('email').trim().isEmail().withMessage('Informe um e-mail válido'),
+        body('password').isString().isLength({min: 8}).withMessage('A senha deve ter pelo menos 8 caracteres'),
+        body('tipo').isInt({min: 2, max: 3}).withMessage('O tipo deve ser 2 (cliente) ou 3 (estabelecimento)'),
     ]
 }
 

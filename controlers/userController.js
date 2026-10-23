@@ -11,40 +11,39 @@ module.exports = class UserController{
     static async register(req, res){
         const {name, email, password, tipo} = req.body
 
-        //verificar se o usuario ja existe
-        const userExists = await User.findOne({where:{email: email}})
-        if(userExists){
-            res.status(422).json({
-                message: "Usuario já cadastrado, utilize outro e-mail"
-            })
-        }
-
-        //criptografar senha
-        const salt = await bcrypt.genSalt(12)
-        const passwordHash = await bcrypt.hash(password, salt)
-
-        //criar novo usuario
         try{
+            const userExists = await User.findOne({where:{email: email}})
+            if(userExists){
+                return res.status(422).json({message: 'Usuário já cadastrado, utilize outro e-mail'})
+            }
+
+            const salt = await bcrypt.genSalt(12)
+            const passwordHash = await bcrypt.hash(password, salt)
             await User.create({
                 name: name,
                 email: email,
                 password: passwordHash,
-                tipo: tipo
+                tipo: Number(tipo)
             })
-            res.status(200).json({message:'Usuario Cadastrado com sucesso'})
+            return res.status(201).json({message: 'Usuário cadastrado com sucesso'})
         }catch(error){
-            res.status(500).json({message: error})
+            if(error.name === 'SequelizeUniqueConstraintError'){
+                return res.status(422).json({message: 'Usuário já cadastrado, utilize outro e-mail'})
+            }
+            console.error(error)
+            return res.status(500).json({message: 'Erro ao cadastrar usuário'})
         }
     }
 
     //metodo para listar todos os usuarios
     static async listAll(req, res){
         try{
-            const users = await User.findAll()
-            res.status(200).json({users:users})
+            const users = await User.findAll({attributes: {exclude: ['password']}})
+            return res.status(200).json({users: users})
         }
         catch(error){
-            res.status(500).json({error: error})
+            console.error(error)
+            return res.status(500).json({message: 'Erro ao listar usuários'})
         }
     }
 
@@ -53,19 +52,19 @@ module.exports = class UserController{
         //receber por parametro o id
         const id = req.params.id
 
-        //verificar se o usuario existe
-        const user = await findOne(id)
-
-        //caso o usuario não exista
-        if(!user){
-            res.status(422).json({message: "usuário não encontrado"})
-            return
+        try{
+            const user = await User.findByPk(id, {attributes: {exclude: ['password']}})
+            if(!user){
+                return res.status(404).json({message: 'Usuário não encontrado'})
+            }
+            if(Number(req.user.tipo) !== 1 && Number(req.user.id) !== user.id){
+                return res.status(403).json({message: 'Você só pode consultar seus próprios dados'})
+            }
+            return res.status(200).json({user})
+        }catch(error){
+            console.error(error)
+            return res.status(500).json({message: 'Erro ao consultar usuário'})
         }
-
-        //retornamos o usuario
-        res.status(200).json({
-            user
-        })
     }
 
     //criar metodo de login
@@ -74,28 +73,22 @@ module.exports = class UserController{
         const {email, password} = req.body
 
         //verificar se o usuario existe
-        const user = await User.findOne({where:{email:email}})
+        try{
+            const user = await User.findOne({where:{email:email}})
+            if(!user){
+                return res.status(422).json({message: 'Não há usuário cadastrado com esse e-mail'})
+            }
 
-        if(!user){
-            res.status(422).json({
-                message:"Não há usuário cadastrado com esse e-mail"
-            })
-            return
+            const checkPassword = await bcrypt.compare(password, user.password)
+            if(!checkPassword){
+                return res.status(422).json({message: 'Senha inválida'})
+            }
+
+            return await createUserToken(user, req, res)
+        }catch(error){
+            console.error(error)
+            return res.status(500).json({message: 'Erro ao autenticar usuário'})
         }
-
-        //verificar password
-        const checkPassword = await bcrypt.compare(password, user.password)
-
-        //retornar mensagem para senha incorreta
-        if(!checkPassword){
-            res.status(422).json({
-                message: "Senha Invalida"
-            })
-            return
-        }
-
-        //geramos o token para o usuario
-        await createUserToken(user, req, res)
     }
 
     //editar dados do usuário
@@ -106,26 +99,32 @@ module.exports = class UserController{
         //recuperar os dados do corpo da requisição pelo body
         const {name, email} = req.body
 
-        //verificar se o usuario existe
-        const user = await User.findByPk(id)
-
-        //caso o usuario não exista
-        if(!user){
-            res.status(422).json({message: 'Usuário não encontrado'})
-            return
-        }
-
-        //alterar os dados
         try{
-            await User.update({
-                name:name,
-                email:email
-            },{where:{id:id}})
-            res.status(200).json({message: 'Usuario alterado com sucesso'})
+            const user = await User.findByPk(id)
+            if(!user){
+                return res.status(404).json({message: 'Usuário não encontrado'})
+            }
+
+            if(Number(req.user.tipo) !== 1 && Number(req.user.id) !== user.id){
+                return res.status(403).json({message: 'Você só pode editar seus próprios dados'})
+            }
+
+            if(email && email !== user.email){
+                const emailExists = await User.findOne({where: {email}})
+                if(emailExists){
+                    return res.status(422).json({message: 'E-mail já cadastrado'})
+                }
+            }
+
+            await user.update({name: name || user.name, email: email || user.email})
+            return res.status(200).json({message: 'Usuário alterado com sucesso'})
         }
         catch(error){
-            res.status(401).json({message: 'Erro ao editar o usuario'})
-            return
+            if(error.name === 'SequelizeUniqueConstraintError'){
+                return res.status(422).json({message: 'E-mail já cadastrado'})
+            }
+            console.error(error)
+            return res.status(500).json({message: 'Erro ao editar o usuário'})
         }
     }
 }
