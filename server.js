@@ -29,9 +29,8 @@ api.use(express.json())
 api.use(cors({credentials: true, origin: 'http://localhost:5000'}))
 
 api.use('/users',userRoutes)
-api.use('/api/auth', userRoutes)
-api.use('/api/locais', estabelecimentoRoutes)
-api.use('/api/avaliacoes', avaliacaoRoutes)
+api.use('/locais', estabelecimentoRoutes)
+api.use('/avaliacoes', avaliacaoRoutes)
 
 //start api
 conn.sync({alter: true})

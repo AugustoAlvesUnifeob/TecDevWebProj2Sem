@@ -14,7 +14,8 @@ const updateMedia = async (idestabelecimento) => {
     )
 }
 
-module.exports = class AvaliacaoController {
+module.exports = class AvaliacaoController{
+    //metodo para listar as avaliações aprovadas de um estabelecimento
     static async listByEstabelecimento(req, res){
         try{
             const estabelecimento = await Estabelecimento.findByPk(req.params.localId)
@@ -35,6 +36,7 @@ module.exports = class AvaliacaoController {
         }
     }
 
+    //metodo para listar avaliações em análise
     static async listPending(req, res){
         try{
             const avaliacoes = await Avaliacao.findAll({
@@ -47,6 +49,7 @@ module.exports = class AvaliacaoController {
         }
     }
 
+    //metodo para cadastrar uma avaliação
     static async create(req, res){
         const {idestabelecimento, idnota, comentario} = req.body
 
@@ -68,7 +71,7 @@ module.exports = class AvaliacaoController {
                 idestabelecimento,
                 idnota,
                 comentario,
-                status: Number(idnota) === 1 ? 'sob_analise' : 'aprovado'
+                status: 'sob_analise'
             })
             if(avaliacao.status === 'aprovado'){
                 await updateMedia(idestabelecimento)
@@ -83,6 +86,7 @@ module.exports = class AvaliacaoController {
         }
     }
 
+    //metodo para editar uma avaliação
     static async update(req, res){
         try{
             const avaliacao = await Avaliacao.findByPk(req.params.id)
@@ -111,11 +115,9 @@ module.exports = class AvaliacaoController {
         }
     }
 
+    //metodo para moderar uma avaliação
     static async moderate(req, res){
         const {status} = req.body
-        if(!['aprovado', 'rejeitado'].includes(status)){
-            return res.status(400).json({message: 'O status deve ser aprovado ou rejeitado'})
-        }
 
         try{
             const avaliacao = await Avaliacao.findByPk(req.params.id)
@@ -132,6 +134,7 @@ module.exports = class AvaliacaoController {
         }
     }
 
+    //metodo para excluir uma avaliação
     static async remove(req, res){
         try{
             const avaliacao = await Avaliacao.findByPk(req.params.id)

@@ -1,15 +1,8 @@
+//requerer os models
 const Estabelecimento = require('../models/Estabelecimento')
-const User = require('../models/Users')
 
-const editableFields = ['name', 'CNPJ', 'descricao', 'phone', 'horario']
-
-const getEditableData = (body) => Object.fromEntries(
-    editableFields
-        .filter((field) => body[field] !== undefined)
-        .map((field) => [field, body[field]])
-)
-
-module.exports = class EstabelecimentoController {
+module.exports = class EstabelecimentoController{
+    //metodo para listar todos os estabelecimentos
     static async list(req, res){
         try{
             const estabelecimentos = await Estabelecimento.findAll()
@@ -20,20 +13,18 @@ module.exports = class EstabelecimentoController {
         }
     }
 
-    static async create(req, res){
-        const {idusuario} = req.body
+    //metodo para cadastrar um estabelecimento
+    static async register(req, res){
+        const {name, CNPJ, descricao, phone, horario} = req.body
 
         try{
-            const responsavel = await User.findOne({
-                where: {id: idusuario, tipo: 3}
-            })
-            if(!responsavel){
-                return res.status(400).json({message: 'Informe um usuário do tipo estabelecimento válido'})
-            }
-
             const estabelecimento = await Estabelecimento.create({
-                ...getEditableData(req.body),
-                idusuario: responsavel.id
+                name: name,
+                CNPJ: CNPJ,
+                descricao: descricao,
+                phone: phone,
+                horario: horario,
+                idusuario: req.user.id
             })
             return res.status(201).json({estabelecimento})
         }catch(error){
@@ -45,7 +36,10 @@ module.exports = class EstabelecimentoController {
         }
     }
 
+    //metodo para editar um estabelecimento
     static async update(req, res){
+        const {name, CNPJ, descricao, phone, horario} = req.body
+
         try{
             const estabelecimento = await Estabelecimento.findByPk(req.params.id)
             if(!estabelecimento){
@@ -59,12 +53,18 @@ module.exports = class EstabelecimentoController {
                 return res.status(403).json({message: 'Você só pode editar seu próprio estabelecimento'})
             }
 
-            const data = getEditableData(req.body)
-            if(Object.keys(data).length === 0){
+            if(name === undefined && CNPJ === undefined && descricao === undefined
+                && phone === undefined && horario === undefined){
                 return res.status(400).json({message: 'Informe ao menos um campo para atualizar'})
             }
 
-            await estabelecimento.update(data)
+            await estabelecimento.update({
+                name: name || estabelecimento.name,
+                CNPJ: CNPJ || estabelecimento.CNPJ,
+                descricao: descricao || estabelecimento.descricao,
+                phone: phone || estabelecimento.phone,
+                horario: horario || estabelecimento.horario
+            })
             return res.status(200).json({estabelecimento})
         }catch(error){
             if(error.name === 'SequelizeUniqueConstraintError'){

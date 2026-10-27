@@ -1,11 +1,11 @@
 //requerer a biblioteca router do express
 const route = require('express').Router()
-const {body} = require('express-validator')
 
 //requerer o controller no UserController
 const UserController = require('../controlers/userController')
 //requerer as validacoes
-const {registerValidationRules, validate} = require('../helpers/userValidator')
+const {registerValidationRules, updateValidationRules} = require('../helpers/userValidator')
+const validate = require('../helpers/validation')
 //requerer a validação do token
 const verifyToken = require('../helpers/verify-token.js')
 const authorizeRoles = require('../helpers/authorize-roles')
@@ -24,9 +24,6 @@ route.post('/login', UserController.login)
 route.get('/:id', verifyToken, UserController.getUserById)
 
 //rota para editar usuario
-route.patch('/edit/:id', verifyToken, [
-    body('name').optional().trim().notEmpty().withMessage('O nome não pode ser vazio'),
-    body('email').optional().trim().isEmail().withMessage('Informe um e-mail válido')
-], validate, UserController.editUser)
+route.patch('/edit/:id', verifyToken, updateValidationRules(), validate, UserController.editUser)
 
 module.exports = route
