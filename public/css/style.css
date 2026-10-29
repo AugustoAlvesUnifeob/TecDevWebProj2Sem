@@ -1,0 +1,52 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #e8eee7;
+  color: #35463b;
+  font-family: Arial, sans-serif;
+}
+
+button, input, select, textarea { font: inherit; }
+[hidden] { display: none !important; }
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px max(20px, calc((100% - 900px) / 2));
+  background: white;
+}
+
+header div { display: flex; align-items: center; gap: 8px; }
+.brand { color: #4f7161; font-size: 20px; font-weight: bold; text-decoration: none; }
+main { width: min(900px, calc(100% - 32px)); margin: 32px auto; }
+.intro { padding: 20px 0; }
+.intro h1 { max-width: 600px; color: #365844; font-size: clamp(30px, 5vw, 44px); }
+.intro p { color: #718078; }
+input, select, textarea { width: 100%; padding: 11px; border: 1px solid #d8e1da; border-radius: 6px; }
+#search { max-width: 480px; background: white; }
+.box, .place { margin: 16px 0; padding: 20px; border-radius: 10px; background: white; }
+.section-title { display: flex; align-items: center; justify-content: space-between; }
+h2 { color: #365844; font-size: 21px; }
+.form { display: grid; gap: 12px; max-width: 480px; }
+.form label { display: grid; gap: 6px; font-size: 14px; }
+.form label { display: grid; gap: 6px; font-size: 14px; }
+.button, .plain { padding: 10px 14px; border: 0; border-radius: 6px; cursor: pointer; }
+.button { background: #4f7161; color: white; }
+.button:hover { background: #3f5c4f; }
+.plain { background: transparent; color: #4f7161; }
+.place p { color: #64736a; line-height: 1.5; }
+.place-meta { color: #718078; font-size: 14px; }
+.reviews { margin-top: 12px; padding-top: 12px; border-top: 1px solid #e2e9e4; }
+.reviews p { margin: 8px 0; }
+.review-form { margin-top: 12px; }
+.pending { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid #e2e9e4; }
+.pending div { display: flex; gap: 8px; }
+#message { padding: 12px; border-radius: 6px; background: white; color: #3f5c4f; }
+#message.error { color: #8a4438; }
+@media (max-width: 560px) {
+  header { padding: 14px 16px; }
+  .brand { font-size: 17px; }
+  .place, .box { padding: 15px; }
+  .pending { flex-direction: column; }
+}

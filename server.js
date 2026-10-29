@@ -1,5 +1,6 @@
 //requere o express
 const express = require('express')
+const path = require('path')
 //instacia do express
 const api = express()
 //require cors
@@ -27,6 +28,8 @@ api.use(express.json())
 
 //salve cors
 api.use(cors({credentials: true, origin: 'http://localhost:5000'}))
+
+api.use(express.static(path.join(__dirname, 'public')))
 
 api.use('/users',userRoutes)
 api.use('/locais', estabelecimentoRoutes)

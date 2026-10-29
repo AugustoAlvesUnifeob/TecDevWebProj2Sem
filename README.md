@@ -23,3 +23,9 @@ Projeto desenvolvido para a disciplina de Desenvolvimento Web. É uma API REST e
 * **Validação:** Dados do formulário são tratados pelo `express-validator` (retorna `400 Bad Request` se houver erros).
 
 ---
+
+## Interface web
+
+A interface fica na pasta `public`, organizada em `css`, `js/pages` e `js/services`, e é servida pelo próprio Express. Com o MySQL configurado e o servidor iniciado, acesse **http://localhost:5000**. Não é necessário instalar dependências adicionais para o front-end.
+
+Na interface é possível consultar e buscar estabelecimentos, criar conta e entrar, enviar avaliações como cliente, cadastrar um estabelecimento e moderar avaliações como administrador.
